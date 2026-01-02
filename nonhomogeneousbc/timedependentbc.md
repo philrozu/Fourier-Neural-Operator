@@ -6,11 +6,11 @@ The Fourier Neural Operator (FNO) has become a prominent architecture for learni
 
 "In order to maintain a fast and memory-efficient method, our implementation of the Fourier neural operator relies on the fast Fourier transform which is only defined on uniform mesh discretizations of , or for functions on the square satisfying homogeneous Dirichlet (fast Fourier sine transform) or homogeneous Neumann (fast Fourier cosine transform) boundary conditions" (Kovachki et al., 2023).
 
-Following this reasoning, the publicly available NeuralOperator library (Kossaifi et al., 2025), which uses FFT-based convolutions, would also be formally limited when applied to non-homogeneous Neumann boundary conditions.
+Following this reasoning, the publicly available NeuralOperator library (Kossaifi et al., 2025), which uses FFT-based convolutions, would also be limited when applied to non-homogeneous Neumann boundary conditions.
 
-Conversely, another paper dedicated to FNO methodology states that FNOs are not restricted to homogeneous domains and can incorporate heterogeneous geometries and boundary conditions (Duruisseaux et al., 2025). This implies that, despite theoretical constraints of FFT-based solvers, FNOs may still perform adequately in practice when trained on non-homogeneous boundary conditions. An analogy may be drawn to the Nelder-Mead simplex algorithm, which lacks general convergence guarantees yet remains widely effective in applied settings.
+Conversely, another paper dedicated to FNO methodology states that FNOs are not restricted to homogeneous domains and can incorporate heterogeneous geometries and boundary conditions (Duruisseaux et al., 2025). If I understand correctly, despite theoretical constraints of FFT-based solvers, FNOs may still perform adequately in practice when trained on non-homogeneous boundary conditions. An analogy may be drawn to the Nelder-Mead simplex algorithm, which lacks general convergence guarantees yet remains widely effective in applied settings.
 
-To evaluate this in practice, I apply the FNO to a diffusion-reaction system with non-homogeneous boundary conditions and assess whether it can approximate the solution qualitatively.
+To evaluate this in practice, I apply the FNO to a diffusion-reaction system with non-homogeneous boundary conditions and assess whether it can approximate the solution.
 
 ### Theoretical setup
 
@@ -126,102 +126,21 @@ The dataset dataset contains down sampled versions of simulation, with specifica
 
 ![Figure 1](images/movie_2d_reacdiff.gif)
 
-I generate 700 samples using the following modified rc_ode function from sim_diff_react.py in the PDEBench code:
-
-&nbsp;   def rc_ode(self, t, y):  # noqa: ARG002
-
-&nbsp;       """
-
-&nbsp;       Solves a given equation for a particular time step.
-
-&nbsp;       :param t: The current time step
-
-&nbsp;       :param y: The equation values to solve
-
-&nbsp;       :return: A finite volume solution
-
-&nbsp;       """
-
-&nbsp;       # Separate y into u and v
-
-&nbsp;       u = y\[: self.Nx \* self.Ny\]
-
-&nbsp;       v = y\[self.Nx \* self.Ny :\]
-
-&nbsp;       # Calculate reaction function for each unknown
-
-&nbsp;       react_u = u - u\*\*3 - self.k - v
-
-&nbsp;       react_v = u - v
-
-&nbsp;       # Boundary indices
-
-&nbsp;       left_boundary = np.arange(0, self.Nx \* self.Ny, self.Nx)
-
-&nbsp;       right_boundary = np.arange(self.Nx - 1, self.Nx \* self.Ny, self.Nx)
-
-&nbsp;       top_boundary = np.arange(0, self.Nx)
-
-&nbsp;       bottom_boundary = np.arange(self.Nx \* (self.Ny - 1), self.Nx \* self.Ny)
-
-&nbsp;       # Neumann flux values
-
-&nbsp;       g_u_left = -0.05 \* t \* np.ones_like(left_boundary)  
-
-&nbsp;       g_u_right = 0 \* np.ones_like(right_boundary)
-
-&nbsp;       f_v_bottom = 0 \* np.ones_like(bottom_boundary)
-
-&nbsp;       f_v_top = 0.1 \* np.sin(2 \* t) \* np.ones_like(top_boundary)
-
-&nbsp;       # Initialize boundary arrays (only boundary contribution)
-
-&nbsp;       bc_u = np.zeros_like(u)
-
-&nbsp;       bc_v = np.zeros_like(v)
-
-&nbsp;       # Apply flux
-
-&nbsp;       bc_u\[left_boundary\]  = g_u_left / self.dx
-
-&nbsp;       bc_u\[right_boundary\] = g_u_right / self.dx
-
-&nbsp;       bc_v\[bottom_boundary\]  = f_v_bottom / self.dy
-
-&nbsp;       bc_v\[top_boundary\] = f_v_top / self.dy
-
-&nbsp;       # Time derivatives
-
-&nbsp;       u_t = react_u + self.Du \* (self.lap @ u) + bc_u
-
-&nbsp;       v_t = react_v + self.Dv \* (self.lap @ v) + bc_v
-
-&nbsp;       # Stack the time derivative into a single array y_t
-
-&nbsp;       return np.concatenate((u_t, v_t))
+I generate 700 samples using the following modified rc_ode function from sim_diff_react.py in the PDEBench code, available in the file modified_rc_ode.py.
 
 ### Training
 
 I generated a sample of size 700, and trained a model on 500 samples, with 50 for the test. We then calculate the result on the 150 lefts. I used those specifications with the model:
 
 initial_steps = 10
-
 future_steps = 10
-
 batch_size = 4
-
 n_epochs = 50
-
 operator = FNO(
-
-&nbsp;   n_modes=(16,16,5),       # 3D Fourier modes: nx, ny, time
-
-&nbsp;   hidden_channels=32,
-
-&nbsp;   in_channels=dataset\[0\]\[0\].shape\[0\],  # number of input channels
-
-&nbsp;   out_channels=dataset\[0\]\[1\].shape\[0\]  # number of output channels
-
+n_modes=(16,16,5),       # 3D Fourier modes: nx, ny, time
+hidden_channels=32,
+in_channels=dataset\[0\]\[0\].shape\[0\],  # number of input channels
+out_channels=dataset\[0\]\[1\].shape\[0\]  # number of output channels
 )
 
 ### Results
@@ -244,9 +163,7 @@ We can also try on discretization invariance, and we can see that it still holds
 
 ### Conclusion
 
-There still seems like there is a blur as for the theoretical application of FNOs, in particular, whether FNO are compatible with PDEs with non-homogeneous Neumann boundary condition. Using the fast Fourier transform theoretically invalidates the use of non-homogeneous Dirichlet and Neumann boundary conditions. Yet, the current framework works fine even if the boundary conditions are non-homogeneous and even time dependent. This may be because of a wrong theoretical framework in the mathematical analysis part of neural operators.
-
-Another possibility, as suggested in the introduction, is to be in a similar case as the Nelder Mead algorithm, where convergence is mathematically disproven, yet the practical use is really good.
+There remains a lack of clarity regarding the theoretical scope of applicability of Fourier Neural Operators, particularly with respect to PDEs with non-homogeneous Neumann boundary conditions. From a strictly analytical perspective, the use of the fast Fourier transform imposes assumptions that exclude non-homogeneous boundary data. Nevertheless, the numerical experiments presented here indicate that the FNO framework can still perform effectively in practice, even in the presence of non-homogeneous and time-dependent boundary conditions. This apparent discrepancy may point to limitations or gaps in the current mathematical analysis of neural operators. Alternatively, as suggested in the introduction, this situation may be analogous to that of the Nelder–Mead simplex algorithm, whose convergence is not guaranteed theoretically but which remains widely and successfully used in practice.
 
 ### Bibliography
 
