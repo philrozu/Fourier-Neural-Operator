@@ -132,7 +132,7 @@ This is well posed in our case. Indeed, K is finite, so compact, and a 2D reacti
 
 #### Fast Fourier Transform
 
-We employ a Fourier Neural Operator (FNO), in which convolution in Fourier space is performed after a lifting step. The NeuralOperator library implements this using the Fast Fourier Transform (Kossaifi et al., 2025), which implicitly assumes periodicity outside the computational domain. Homogeneous Neumann boundary conditions would correspond to an even cosine expansion, requiring:
+We employ a Fourier Neural Operator (FNO), in which convolution in Fourier space is performed after a lifting step. The NeuralOperator library implements this using the Fast Fourier Transform (Kossaifi et al., 2025), which implicitly assumes periodicity outside the computational domain. Currently, the library does not provide any workaround for these FFT-based assumptions. Homogeneous Neumann boundary conditions would correspond to an even cosine expansion, requiring:
 
 $$
 \partial_n u = \partial_n v = 0 \quad \text{on } \partial\Omega
@@ -182,6 +182,7 @@ We may also see whether discretization invariance still stands for our trained m
 ### Conclusion
 
 There remains a lack of clarity regarding the theoretical scope of applicability of Fourier Neural Operators, particularly with respect to PDEs with non-homogeneous Neumann boundary conditions. From a strictly analytical perspective, the use of the fast Fourier transform imposes assumptions that exclude non-homogeneous boundary data. Nevertheless, the numerical experiments presented here indicate that the FNO framework can still be able to perform effectively in practice, even in the presence of non-homogeneous and time-dependent boundary conditions. This apparent discrepancy may point to limitations or gaps in the current mathematical analysis of neural operators. Alternatively, as suggested in the introduction, this situation may be analogous to that of the Nelder–Mead simplex algorithm, whose convergence is not guaranteed theoretically but which remains widely and successfully used in practice.
+
 
 ### Bibliography
 
