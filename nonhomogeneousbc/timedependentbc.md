@@ -124,7 +124,7 @@ where \(n\) is the normal vector to the boundary. However, in our setup, the imp
 
 The dataset dataset contains down sampled versions of simulation, with specification and of the theoretical setup given previously. Here is an example of a random sample in the dataset:
 
-![Figure 1](movie_2d_reacdiff.gif)
+![Figure 1](images/movie_2d_reacdiff.gif)
 
 I generate 700 samples using the following modified rc_ode function from sim_diff_react.py in the PDEBench code:
 
@@ -237,10 +237,10 @@ MAE : 0.008181
 R² : 0.995152
 
 This is rather very impressive, confirming that FNO are able to learn time-dependent, so non-homogeneous, Neumann boundary conditions, as shown by a concrete example below for and 10 frames as input and 10 frames as output:
-![Figure 2](bc_0.png)
-![Figure 3](bc_1.png)
+![Figure 2](images/bc_0.png)
+![Figure 3](images/bc_1.png)
 We can also try on discretization invariance, and we can see that it still holds for the following example with the same system but with grid size :
-![Figure 4](bc_test_2.png)
+![Figure 4](images/bc_test_2.png)
 
 ### Conclusion
 
