@@ -81,7 +81,7 @@ $$
 where \(f(\cdot)\) is the input function, \(g(\cdot)\) is the output function and \(A,U\) are Banach spaces. In our case, we aim to learn:
 
 $$
-G' :
+G :
 \begin{pmatrix}
 u(x,y,t) \\
 v(x,y,t)
@@ -93,23 +93,44 @@ v(x,y,t + \Delta t)
 \end{pmatrix},
 $$
 
-using two channels to represent \(u\) and \(v\). We actually input 10 frames and output 10 frames to get the best results.
+using two channels to represent \(u\) and \(v\). 
 
-We recall the Universal Approximation Theorem for FNOs (Valentin Duruisseaux, 2025): Let
+We recall the Universal Approximation Theorem for Fourier Neural Operators
+(Valentin Duruisseaux, 2025).
 
-$$
-G : H^s(\mathbb{T}^d; \mathbb{R}^{d_a}) \to H^{s'}(\mathbb{T}^d; \mathbb{R}^{d_u})
-$$
-
-be a continuous operator, and let \(K \subset H^s(\mathbb{T}^d; \mathbb{R}^{d_a})\) be compact. Then, for every \(\varepsilon > 0\), there exists a Fourier Neural Operator \(N\) such that:
+Let
 
 $$
-\sup_{a \in K} \|G(a) - N(a)\|_{H^{s'}} \le \varepsilon.
+G : H^s(\mathbb{T}^d; \mathbb{R}^{d_a})
+\;\longrightarrow\;
+H^{s'}(\mathbb{T}^d; \mathbb{R}^{d_u})
 $$
 
-This is well posed in our case.
+be a continuous operator, and let
 
-#### Theoretical problem
+$$
+K \subset H^s(\mathbb{T}^d; \mathbb{R}^{d_a})
+$$
+
+be a compact set.
+
+Then, for any tolerance
+
+$$
+\varepsilon > 0,
+$$
+
+there exists a Fourier Neural Operator \(N\) such that
+
+$$
+\sup_{a \in K}
+\| G(a) - N(a) \|_{H^{s'}}
+\le \varepsilon .
+$$
+
+This is well posed in our case. Indeed, K is finite, so compact, and a 2D reaction-diffusion PDE with non-homogeneous Neumann boundary conditions has a weak solution in Sobolev space.
+
+#### Fast Fourier Transform
 
 We employ a Fourier Neural Operator (FNO), in which convolution in Fourier space is performed after a lifting step. The NeuralOperator library implements this using the Fast Fourier Transform (Kossaifi et al., 2025), which implicitly assumes periodicity outside the computational domain. Homogeneous Neumann boundary conditions would correspond to an even cosine expansion, requiring:
 
@@ -126,7 +147,7 @@ The dataset dataset contains down sampled versions of simulation, with specifica
 
 ![Figure 1](images/movie_2d_reacdiff.gif)
 
-I generate 700 samples using the following modified rc_ode function from sim_diff_react.py in the PDEBench code, available in the file modified_rc_ode.py.
+Due to computational constraints, I only generated 700 samples using the following modified rc_ode function from sim_diff_react.py in the PDEBench code, available in the file modified_rc_ode.py.
 
 ### Training
 
@@ -143,16 +164,15 @@ in_channels=dataset\[0\]\[0\].shape\[0\],  # number of input channels
 out_channels=dataset\[0\]\[1\].shape\[0\]  # number of output channels
 )
 
+I may note that 10 initial steps and 10 future steps appears to be important parameters as it increased the accuracy of my model significantly. 
+
 ### Results
 
-On 150 new samples, unseen during the training phase, the FNO got
+On 150 new samples, unseen during the training phase, the trained FNO scored:
 
 Evaluation on last 150 samples:
-
 MSE : 0.000208
-
 MAE : 0.008181
-
 R² : 0.995152
 
 This is rather very impressive, confirming that FNO are able to learn time-dependent, so non-homogeneous, Neumann boundary conditions, as shown by a concrete example below for and 10 frames as input and 10 frames as output:
