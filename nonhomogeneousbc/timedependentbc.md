@@ -151,39 +151,37 @@ Due to computational constraints, I only generated 700 samples using the followi
 
 ### Training
 
-I generated a sample of size 700, and trained a model on 500 samples, with 50 for the test. We then calculate the result on the 150 lefts. I used those specifications with the model:
+I trained the model on 550 samples, 500 for training data, 50 for test data. I used the following parameters:
 
-initial_steps = 10
-future_steps = 10
-batch_size = 4
-n_epochs = 50
-operator = FNO(
-n_modes=(16,16,5),       # 3D Fourier modes: nx, ny, time
-hidden_channels=32,
-in_channels=dataset\[0\]\[0\].shape\[0\],  # number of input channels
-out_channels=dataset\[0\]\[1\].shape\[0\]  # number of output channels
-)
+- initial_steps = 10
+- future_steps = 10
+- batch_size = 4
+- n_epochs = 50
+- operator = FNO(
+  - n_modes=(16,16,5),       # 3D Fourier modes: nx, ny, time
+  - hidden_channels=32,
+  - in_channels=2,  # activator, inhibitor
+  - out_channels=2  
+- )
 
 I may note that 10 initial steps and 10 future steps appears to be important parameters as it increased the accuracy of my model significantly. 
 
 ### Results
 
 On 150 new samples, unseen during the training phase, the trained FNO scored:
+- MSE : 0.000208
+- MAE : 0.008181
+- R² : 0.995152
 
-Evaluation on last 150 samples:
-MSE : 0.000208
-MAE : 0.008181
-R² : 0.995152
-
-This is rather very impressive, confirming that FNO are able to learn time-dependent, so non-homogeneous, Neumann boundary conditions, as shown by a concrete example below for and 10 frames as input and 10 frames as output:
+For this example, it confirms that a FNO architecture was able to learn time-dependent, so non-homogeneous, Neumann boundary conditions. For illustration, see below the prediction done on an example unseen during the training phase for the activator and the inhibitor respectively:
 ![Figure 2](images/bc_0.png)
 ![Figure 3](images/bc_1.png)
-We can also try on discretization invariance, and we can see that it still holds for the following example with the same system but with grid size :
+We may also see whether discretization invariance still stands for our trained model:
 ![Figure 4](images/bc_test_2.png)
 
 ### Conclusion
 
-There remains a lack of clarity regarding the theoretical scope of applicability of Fourier Neural Operators, particularly with respect to PDEs with non-homogeneous Neumann boundary conditions. From a strictly analytical perspective, the use of the fast Fourier transform imposes assumptions that exclude non-homogeneous boundary data. Nevertheless, the numerical experiments presented here indicate that the FNO framework can still perform effectively in practice, even in the presence of non-homogeneous and time-dependent boundary conditions. This apparent discrepancy may point to limitations or gaps in the current mathematical analysis of neural operators. Alternatively, as suggested in the introduction, this situation may be analogous to that of the Nelder–Mead simplex algorithm, whose convergence is not guaranteed theoretically but which remains widely and successfully used in practice.
+There remains a lack of clarity regarding the theoretical scope of applicability of Fourier Neural Operators, particularly with respect to PDEs with non-homogeneous Neumann boundary conditions. From a strictly analytical perspective, the use of the fast Fourier transform imposes assumptions that exclude non-homogeneous boundary data. Nevertheless, the numerical experiments presented here indicate that the FNO framework can still be able to perform effectively in practice, even in the presence of non-homogeneous and time-dependent boundary conditions. This apparent discrepancy may point to limitations or gaps in the current mathematical analysis of neural operators. Alternatively, as suggested in the introduction, this situation may be analogous to that of the Nelder–Mead simplex algorithm, whose convergence is not guaranteed theoretically but which remains widely and successfully used in practice.
 
 ### Bibliography
 
