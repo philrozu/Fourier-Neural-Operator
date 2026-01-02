@@ -164,7 +164,7 @@ I trained the model on 550 samples, 500 for training data, 50 for test data. I u
   - out_channels=2  
 - )
 
-I may note that 10 initial steps and 10 future steps appears to be important parameters as it increased the accuracy of my model significantly. 
+The Jupyter notebook used for training can be found under the name "diffusionreaction.ipynb". I may note that 10 initial steps and 10 future steps appears to be important parameters as it increased the accuracy of my model significantly. 
 
 ### Results
 
