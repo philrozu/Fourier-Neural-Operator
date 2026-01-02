@@ -147,7 +147,7 @@ The dataset dataset contains down sampled versions of simulation, with specifica
 
 ![Figure 1](images/movie_2d_reacdiff.gif)
 
-Due to computational constraints, I only generated 700 samples using the following modified rc_ode function from sim_diff_react.py in the PDEBench code, available in the file modified_rc_ode.py.
+Due to computational constraints, I only generated 700 samples using the following modified rc_ode function from sim_diff_react.py in the PDEBench code, available in the file modified_sim_diff_react.py.
 
 ### Training
 
