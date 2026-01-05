@@ -143,7 +143,7 @@ where \(n\) is the normal vector to the boundary. However, in our setup, the imp
 
 ### Dataset
 
-The dataset dataset contains down sampled versions of simulation, with specification and of the theoretical setup given previously. Here is an example of a random sample in the dataset:
+The dataset dataset contains down sampled versions of simulation, with specifications given by the theoretical setup. Here is an example of a random sample in the dataset:
 
 ![Figure 1](images/movie_2d_reacdiff.gif)
 
