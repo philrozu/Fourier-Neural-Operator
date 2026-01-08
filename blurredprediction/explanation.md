@@ -15,12 +15,14 @@ The model was trained on the diffusion-reaction dataset from PDEBench (Takamoto 
 
 ### Problem
 I then performed predictions on new samples simulated using the PDEBench code. The results for grid sizes 128×30, 128×31, 128×32, and 128×33 are as follows:
- 
- 
- 
- 
-It appears that the FNO’s inference can be completely disrupted by the grid size. In particular, an odd-sized axis seems to destroy the predictions entirely, even for otherwise high-resolution grids. Interestingly, the borders along the even-sized axis remain largely unaffected, and it does not seem to matter whether the odd dimension is along the x- or y-axis.
- 
+![Figure 1](images/lq_128_30.png)
+![Figure 2](images/lq_128_31.png)
+![Figure 3](images/lq_128_32.png)
+![Figure 4](images/lq_128_33.png)
+It appears that the FNO’s inference can be completely disrupted by the grid size. In particular, an odd-sized axis seems to destroy the predictions entirely, even for otherwise high-resolution grids. Interestingly, the borders along the even-sized axis remain largely unaffected, and it does not seem to matter whether the odd dimension is along the x- or y-axis or how large
+![Figure 5](images/lq_31_128.png)
+![Figure 6](images/316_571.png)
+
 ### Possible explanation
 My first hypothesis focuses on the Fast Fourier Transform (FFT).
 
@@ -51,13 +53,13 @@ $$
 which behaves as expected. When l approaches 31, lj/Ny aligns almost with the discrete frequencies.  
 
 Interestingly, when using the Fourier layer code from the NeuralOperator theory folder (Kossaifi et al., 2025), this effect is not observed. In that code, random weights are applied iteratively through the Fourier layer. For a 10-timestep prediction run successively 32 times, no structured pattern emerges, and no interference is seen.
-
-
- 
+![Figure 7](images/random_first.png)
+![Figure 8](images/random_middle.png)
+![Figure 9](images/random_last.png)
 This suggests the following mechanism: with random weights, no structure is encoded, so the grid irregularity does not “destroy” anything. With a trained FNO, however, the neurons rely on precise frequency information. If the FFT produces slightly misaligned coefficients (as with an odd or prime axis size), the network receives incorrect inputs, which propagates through the layers, producing a completely blurred or nonsensical output in the interior.
 ### Conclusion
 Predictions using a trained FNO are not fully “discretization invariant” in practice. While increasing the grid size generally works, certain sizes, particularly odd or prime axes, can lead to completely incorrect predictions. In our example, these grid sizes caused the FNO to fail entirely. A plausible explanation is that the Fast Fourier Transform on an odd-sized grid produces misaligned frequency components.
 ### Bibliography
-Jean Kossaifi, N. K.-S. (2025). A Library for Learning Neural Operators. Retrieved from arXiv:2412.10354
-Makoto Takamoto, T. P. (2024). PDEBENCH: An Extensive Benchmark for Scientific Machine Learning. Retrieved from arXiv:2210.07182
+- Jean Kossaifi, N. K.-S. (2025). A Library for Learning Neural Operators. Retrieved from arXiv:2412.10354
+- Makoto Takamoto, T. P. (2024). PDEBENCH: An Extensive Benchmark for Scientific Machine Learning. Retrieved from arXiv:2210.07182
 
