@@ -56,7 +56,7 @@ Interestingly, when using the Fourier layer code from the NeuralOperator theory 
 ![Figure 7](images/random_first.png)
 ![Figure 8](images/random_middle.png)
 ![Figure 9](images/random_last.png)
-This suggests the following mechanism: with random weights, no structure is encoded, so the grid irregularity does not “destroy” anything. With a trained FNO, however, the neurons rely on precise frequency information. If the FFT produces slightly misaligned coefficients (as with an odd or prime axis size), the network receives incorrect inputs, which propagates through the layers, producing a completely blurred or nonsensical output in the interior.
+This suggests the following mechanism: with random weights, no structure is encoded, so the grid irregularity does not “destroy” anything. With a trained FNO, however, the neurons rely on precise frequency information. If the FFT produces slightly misaligned coefficients, as with an odd or prime axis size, the network receives incorrect inputs, which propagates through the layers, producing a blurred output in the interior.
 ### Conclusion
 Predictions using a trained FNO are not fully “discretization invariant” in practice. While increasing the grid size generally works, certain sizes, particularly odd or prime axes, can lead to completely incorrect predictions. In our example, these grid sizes caused the FNO to fail entirely. A plausible explanation is that the Fast Fourier Transform on an odd-sized grid produces misaligned frequency components.
 ### Bibliography
